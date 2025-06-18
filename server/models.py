@@ -64,7 +64,6 @@ class Program(db.Model):
   def __repr__(self):
     return f'<Program {self.title}>'
   
-
 class UserSchema(ma.SQLAlchemyAutoSchema):
   class Meta:
     model = User
@@ -97,3 +96,72 @@ class RouteSchema(ma.SQLAlchemyAutoSchema):
     model = Route
     load_instance = True
     exclude = ('programs',)
+
+  @validates('distance')
+  def validates_distance(self, distance):
+    if not distance:
+      raise ValidationError('Distance cannot be empty')
+    if not isinstance(distance, (int, float)):
+      raise ValidationError("Distance must be a number")
+    if distance <= 0:
+      raise ValidationError("Distance must be greater than 0")
+
+class StyleSchema(ma.SQLAlchemyAutoSchema):
+  class Meta:
+    model = Style
+    load_instance = True
+    exclude = ('programs',)
+
+  @validates('name')
+  def validate_name(self, _, name):
+    if not name:
+      raise ValidationError("Name cannot be empty")
+    if not isinstance(name, str):
+      raise ValidationError("Name must be a string")
+    if len(name) < 2:
+      raise ValidationError("Name must be at least 2 characters long")
+    return name
+
+  @validates('description')
+  def validate_description(self, _, description):
+    if not description:
+      raise ValidationError("Description cannot be empty")
+    if not isinstance(description, str):
+      raise ValidationError("Description must be a string")
+    if len(description) < 10:
+      raise ValidationError("Description must be at least 10 characters long")
+    return description
+
+class ProgramSchema(ma.SQLAlchemyAutoSchema):
+  class Meta:
+    model = Program
+    load_instance = True
+    include_fk = True
+
+  @validates('title')
+  def validate_title(self, _, title):
+    if not title:
+      raise ValidationError("Title cannot be empty")
+    if not isinstance(title, str):
+      raise ValidationError("Title must be a string")
+    if len(title) < 3:
+      raise ValidationError("Title must be at least 3 characters long")
+    return title
+
+  @validates('description')
+  def validate_description(self, _, description):
+    if not description:
+      raise ValidationError("Description cannot be empty")
+    if not isinstance(description, str):
+      raise ValidationError("Description must be a string")
+    if len(description) < 10:
+      raise ValidationError("Description must be at least 10 characters long")
+    return description
+
+  @validates('duration')
+  def validate_duration(self, _, duration):
+    if not duration:
+      raise ValidationError("Duration cannot be empty")
+    if not isinstance(duration, str):
+      raise ValidationError("Duration must be a string")
+    return duration
